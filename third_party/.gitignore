@@ -1,0 +1,5 @@
+# Vendored/fetched third-party code (e.g. Assimp) lands here via the build
+# system, not by hand — don't commit it.
+*
+!.gitignore
+!.gitkeep

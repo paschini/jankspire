@@ -1,0 +1,5 @@
+# Model files (FBX etc.) are often not redistributable and are large binary
+# blobs anyway — supply your own test asset locally instead of committing one.
+*
+!.gitignore
+!.gitkeep

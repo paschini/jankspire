@@ -1,0 +1,28 @@
+# --- Build output (CMake, C++) ---
+/build/
+/out/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# --- .NET / C# (server/) ---
+bin/
+obj/
+*.user
+
+# --- IDEs / editors ---
+.vscode/
+.idea/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Misc ---
+*.log
