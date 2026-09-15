@@ -18,6 +18,7 @@ obj/
 *.xcodeproj/
 *.xcworkspace/
 xcuserdata/
+Session.vim
 
 # --- macOS ---
 .DS_Store
