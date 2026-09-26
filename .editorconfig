@@ -1,0 +1,12 @@
+# Jankspire's own editor settings, so they travel with the repo.
+# C++ layout beyond indentation lives in .clang-format.
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+
+[{Makefile,makefile,*.mk}]
+indent_style = tab

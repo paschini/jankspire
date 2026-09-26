@@ -31,15 +31,19 @@ condensed version a session needs without re-briefing.
 ```
 jankspire/
 ├── engine/               # C++ static lib — rendering, math, skeletal anim, ECS-ish core
-├── client/               # C++ executable, links engine
+├── editor/               # C++ executable, links engine — the engine's face and main tool
+├── client/               # C++ executable, links engine — the game
 ├── server/               # standalone .NET console app
 ├── protocol/             # shared packet format spec (docs, not shared code)
 │   └── packets.md
 ├── assets/
 │   └── models/
-├── third_party/          # Assimp etc.
-└── CMakeLists.txt        # root: add_subdirectory(engine), add_subdirectory(client)
+├── third_party/          # metal-cpp + metal-cpp-extensions (vendored, committed); Assimp etc. (fetched, ignored)
+└── CMakeLists.txt        # root: add_subdirectory() for engine/, editor/, client/
 ```
+
+The editor is not a bolt-on: it's the primary way to drive the engine from day
+one, so engine features should be reachable through it.
 
 ## Stack (locked for now)
 
@@ -55,7 +59,7 @@ jankspire/
   don't let the two sides silently drift out of sync with the doc.
 - **Server runtime**: C# / .NET console app.
 
-## C++ coding standards (engine, client)
+## C++ coding standards (engine, editor, client)
 
 Target **C++20** — concepts, ranges, `span`, designated initializers are all
 fair game; mature enough on current Xcode/clang not to fight the toolchain.
@@ -80,11 +84,16 @@ No Hungarian notation, no Unreal-style `U`/`A`/`F`/`b`/`T` prefixes — that
 ceremony earns its keep in a huge multi-team codebase, not a solo hand-rolled
 engine.
 
+Exception: overrides of Apple delegate methods (`applicationDidFinishLaunching`,
+`drawInMTKView`, ...) keep Apple's camelCase names, since metal-cpp requires them.
+
 ### Formatting
 
-- Allman braces (opening brace on its own line) — again, matches the C#
-  server's default so the eye doesn't have to switch modes.
-- 4-space indents, no tabs.
+- `.clang-format` at the repo root is the source of truth; run `clang-format -i`
+  rather than hand-formatting. `.editorconfig` covers everything else.
+- Allman braces (opening brace on its own line) — matches the C# server's
+  default so the eye doesn't have to switch modes.
+- 2-space indents everywhere (C++, C#, CMake, docs), no tabs.
 - `#pragma once` for header guards, not include-guard macros.
 - Local includes in quotes, system/third-party in angle brackets.
 
@@ -96,6 +105,10 @@ engine.
 - `std::unique_ptr` for single ownership. Avoid `std::shared_ptr` unless
   there's a genuine shared-ownership case; don't reach for it by default.
 - Raw pointers and references mean "I don't own this, I'm just looking."
+- Apple objects (metal-cpp) are reference-counted: hold owned ones in
+  `NS::SharedPtr`, adopting `alloc()->init()` / `new...()` results with
+  `NS::TransferPtr`. Autoreleased objects need an `NS::AutoreleasePool` in
+  scope (one per frame in the render loop).
 - No custom allocators or memory arenas yet — that's an optimization to earn
   once something is measurably slow, not a day-one decision.
 
@@ -126,8 +139,8 @@ engine.
 ## C# server
 
 - Idiomatic .NET conventions — `PascalCase` types & methods, `camelCase`
-  locals/params. This is just standard C#, nothing project-specific to
-  remember here.
+  locals/params. Standard C#, except indentation: 2 spaces, like the rest of
+  the repo.
 - Keep it a plain console app: no DI container, no ASP.NET, no ORM. Raw
   `UdpClient`, a simple loop, plain classes for per-client state.
 
@@ -140,6 +153,8 @@ testing strategy once there's enough surface area to justify one.
 ## Build
 
 CMake, target-based (`target_link_libraries` / `target_include_directories`,
-not global `include_directories`). Root `CMakeLists.txt` adds `engine/` and
-`client/` as subdirectories. `server/` builds independently via its own
+not global `include_directories`). Root `CMakeLists.txt` adds `engine/`,
+`editor/` and `client/` as subdirectories (each only once it has a
+`CMakeLists.txt`). Build output goes in `build/` (or `build-xcode/` for the
+generated Xcode project), both gitignored. `server/` builds independently via its own
 `.csproj` / `dotnet build`, not through CMake.

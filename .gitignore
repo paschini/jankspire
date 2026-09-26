@@ -1,5 +1,6 @@
 # --- Build output (CMake, C++) ---
 /build/
+/build-*/
 /out/
 cmake-build-*/
 CMakeFiles/
@@ -19,6 +20,8 @@ obj/
 *.xcworkspace/
 xcuserdata/
 Session.vim
+# clangd's symbol index
+.cache/
 
 # --- macOS ---
 .DS_Store

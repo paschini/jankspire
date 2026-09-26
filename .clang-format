@@ -1,0 +1,15 @@
+# C++ formatting for engine/, editor/, client/. See CLAUDE.md "Formatting".
+# Microsoft style = Allman braces (opening brace on its own line).
+BasedOnStyle: Microsoft
+IndentWidth: 2
+# `public:` / `private:` flush with the `class` keyword
+AccessModifierOffset: -2
+ColumnLimit: 120
+PointerAlignment: Left
+# Include order can matter (e.g. metal-cpp's implementation defines must come
+# before its headers), so leave it as written.
+SortIncludes: Never
+# Wrapped arguments go on the next line, indented 2, instead of aligning far
+# right under the opening parenthesis.
+AlignAfterOpenBracket: AlwaysBreak
+ContinuationIndentWidth: 2
