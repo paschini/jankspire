@@ -73,7 +73,8 @@ solo doesn't require a style context-switch.
 |---|---|---|
 | Types (class/struct/enum/using) | `PascalCase` | `class Renderer`, `enum class RenderPass` |
 | Functions & methods | `PascalCase` | `void Update()`, `Vector3 GetPosition()` |
-| Member variables | `m_camelCase` | `m_position`, `m_meshBuffer` |
+| Member variables (private/protected) | `m_camelCase` | `m_position`, `m_meshBuffer` |
+| Public fields of plain data structs | `camelCase` | `Vertex::position`, `Vertex::uv` |
 | Locals & parameters | `camelCase` | `deltaTime`, `vertexCount` |
 | Constants / `constexpr` | `PascalCase` | `constexpr int MaxPlayers = 64;` |
 | Namespaces | lowercase, short | `jankspire::render`, `jankspire::net` |
@@ -135,6 +136,74 @@ Exception: overrides of Apple delegate methods (`applicationDidFinishLaunching`,
 
 - Build with `-Wall -Wextra -Wpedantic`. Don't silence a warning without
   understanding why it fired first.
+- `.clang-tidy` at the repo root is the linter config (CLion and clangd both
+  read it), including the naming rules above. Every disabled check has a
+  one-line reason there; keep it that way when changing the list.
+
+## Engine conventions
+
+Decided up front, before the code that needs them exists. These are the classic
+places where engines lose days to silent bugs (wrong scale, flipped axes,
+CPU/GPU struct drift), so they're pinned down now and applied as each feature
+lands.
+
+### Space and units
+
+- **1 unit = 1 meter.** Speeds in m/s, distances in meters, everywhere.
+- **World space: right-handed, +Y up, forward = -Z** (same as glTF/OpenGL
+  convention). The projection matrix converts to Metal's clip space (depth
+  0..1).
+- **Front faces wind counter-clockwise.** Metal defaults to clockwise, so set
+  `setFrontFacingWinding(MTL::WindingCounterClockwise)` on the encoder.
+- **Assets are converted at import, never at runtime.** FBX files (especially
+  Mixamo) are often in centimeters with their own axis setup; Assimp reports
+  both. The loader converts to meters and our axes once, so nothing past the
+  loader ever sees a foreign unit or axis.
+
+### Math
+
+- `simd` matrices are column-major and multiply column vectors:
+  `clip = clipFromWorld * position`.
+- **Name transforms `<to>From<from>`**: `worldFromModel`, `viewFromWorld`,
+  `clipFromView`. Chains then read like cancelling fractions
+  (`clipFromWorld = clipFromView * viewFromWorld`), so a wrong multiplication
+  order looks wrong. Matters most for skinning (`modelFromBone`,
+  `boneFromBindPose`, ...).
+- **Radians internally**; degrees only at the edges where people type numbers
+  (editor fields). When a unit is ambiguous, put it in the name:
+  `fovRadians`, `durationSeconds`, `tickIntervalMs`.
+
+### CPU/GPU shared data
+
+- Vertex and uniform structs are defined **once**, in a shared header (e.g.
+  `ShaderTypes.h`) that both the C++ code and the `.metal` shaders `#include`.
+  Never define the same struct separately on each side; a mismatch makes the
+  GPU read garbage without any error.
+- Use `simd` types in shared structs, and mind their alignment
+  (`simd_float3` is 16 bytes, not 12).
+
+### Time and simulation
+
+- **Fixed timestep for simulation, variable for rendering.** Gameplay and
+  movement update at a fixed tick rate via an accumulator; rendering runs as
+  fast as the display allows (and may interpolate between ticks). Reference:
+  Glenn Fiedler, "Fix Your Timestep!".
+- Client and server both count in **ticks**. Network messages refer to tick
+  numbers, not wall-clock time.
+- `deltaTime` is always in seconds, as `float`.
+
+### Game objects
+
+- Refer to entities by **ID** (`using EntityId = uint32_t;`), not by pointer.
+  IDs survive the network and serialization and can't dangle; the server
+  speaks in them too. Pointers are for short-lived, same-frame access only.
+
+### Data crossing a boundary
+
+- Anything sent to the GPU, over the network, or to disk uses fixed-size
+  types (`uint32_t`, `int16_t`, `float`, `simd` types), never `int`/`long`,
+  whose sizes are platform-dependent. Plain `int` is fine for local loops and
+  counters.
 
 ## C# server
 

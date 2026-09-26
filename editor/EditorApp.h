@@ -19,7 +19,7 @@ public:
   bool applicationShouldTerminateAfterLastWindowClosed(NS::Application* sender) override;
 
 private:
-  NS::Menu* CreateMenuBar();
+  static NS::Menu* CreateMenuBar();
 
   NS::SharedPtr<MTL::Device> m_device;
   NS::SharedPtr<NS::Window> m_window;

@@ -1,0 +1,64 @@
+# clang-tidy: the linter (think ESLint). clang-format handles layout.
+# Read by CLion and by clangd in nvim. Each disabled check says why, so
+# re-enabling one later is a deliberate choice, not a guess.
+Checks: >
+  bugprone-*,
+  performance-*,
+  modernize-*,
+  misc-*,
+  readability-*,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-special-member-functions,
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -cppcoreguidelines-pro-type-static-cast-downcast
+
+# Disabled, and why:
+#  bugprone-easily-swappable-parameters  flags any two same-typed params (x, y); mostly noise
+#  modernize-use-trailing-return-type    `auto F() -> int` everywhere is a style choice, not a fix
+#  modernize-use-nodiscard               wants [[nodiscard]] on every getter; revisit later
+#  misc-include-cleaner                  fights metal-cpp's umbrella headers (<Metal/Metal.hpp>)
+#  misc-non-private-member-variables-in-classes  plain data structs (Vertex etc.) have public fields
+#  readability-magic-numbers             graphics code is full of literal colors, sizes, matrices
+#  readability-identifier-length         x, y, i, dt are fine names
+#  cppcoreguidelines-pro-type-static-cast-downcast  never enabled above, but CLion
+#      Nova adds it from its own defaults; it wants dynamic_cast, which can't work on
+#      metal-cpp's NS::Object (a wrapper around Objective-C objects with no C++ RTTI)
+
+# Only report on our own code, not metal-cpp or other third-party headers
+HeaderFilterRegex: '.*/(engine|editor|client)/.*'
+
+CheckOptions:
+  # Suggest `const` for values, but not "pointer to const". Apple objects
+  # are used through non-const pointers by design.
+  misc-const-correctness.WarnPointersAsPointers: false
+
+  # Naming conventions from CLAUDE.md
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TypedefCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.FunctionCase: CamelCase
+  readability-identifier-naming.MethodCase: CamelCase
+  readability-identifier-naming.PrivateMemberCase: camelBack
+  readability-identifier-naming.PrivateMemberPrefix: m_
+  readability-identifier-naming.ProtectedMemberCase: camelBack
+  readability-identifier-naming.ProtectedMemberPrefix: m_
+  readability-identifier-naming.PublicMemberCase: camelBack
+  readability-identifier-naming.LocalVariableCase: camelBack
+  readability-identifier-naming.ParameterCase: camelBack
+  readability-identifier-naming.ConstexprVariableCase: CamelCase
+  readability-identifier-naming.GlobalConstantCase: CamelCase
+  readability-identifier-naming.StaticConstantCase: CamelCase
+  # `main` has to be called main
+  readability-identifier-naming.IgnoreMainLikeFunctions: true

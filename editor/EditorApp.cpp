@@ -2,22 +2,22 @@
 
 void EditorApp::applicationWillFinishLaunching(NS::Notification* notification)
 {
-  NS::Application* app = reinterpret_cast<NS::Application*>(notification->object());
+  auto* app = static_cast<NS::Application*>(notification->object());
   app->setMainMenu(CreateMenuBar());
   app->setActivationPolicy(NS::ActivationPolicy::ActivationPolicyRegular);
 }
 
 void EditorApp::applicationDidFinishLaunching(NS::Notification* notification)
 {
-  CGRect frame = {{100.0, 100.0}, {1280.0, 720.0}};
+  constexpr CGRect Frame = {.origin = {.x = 100.0, .y = 100.0}, .size = {.width = 1280.0, .height = 720.0}};
 
-  NS::WindowStyleMask style = NS::WindowStyleMaskTitled | NS::WindowStyleMaskClosable |
-                              NS::WindowStyleMaskMiniaturizable | NS::WindowStyleMaskResizable;
-  m_window = NS::TransferPtr(NS::Window::alloc()->init(frame, style, NS::BackingStoreBuffered, false));
+  constexpr NS::WindowStyleMask Style = NS::WindowStyleMaskTitled | NS::WindowStyleMaskClosable |
+                                        NS::WindowStyleMaskMiniaturizable | NS::WindowStyleMaskResizable;
+  m_window = NS::TransferPtr(NS::Window::alloc()->init(Frame, Style, NS::BackingStoreBuffered, false));
 
   m_device = NS::TransferPtr(MTL::CreateSystemDefaultDevice());
 
-  m_view = NS::TransferPtr(MTK::View::alloc()->init(frame, m_device.get()));
+  m_view = NS::TransferPtr(MTK::View::alloc()->init(Frame, m_device.get()));
   m_view->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
   m_view->setClearColor(MTL::ClearColor::Make(0.16, 0.16, 0.21, 1.0));
 
@@ -28,7 +28,7 @@ void EditorApp::applicationDidFinishLaunching(NS::Notification* notification)
   m_window->setTitle(NS::String::string("Jankspire Editor", NS::StringEncoding::UTF8StringEncoding));
   m_window->makeKeyAndOrderFront(nullptr);
 
-  NS::Application* app = reinterpret_cast<NS::Application*>(notification->object());
+  auto* app = static_cast<NS::Application*>(notification->object());
   app->activateIgnoringOtherApps(true);
 }
 
