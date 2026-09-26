@@ -1,5 +1,16 @@
-# Vendored/fetched third-party code (e.g. Assimp) lands here via the build
-# system, not by hand — don't commit it.
+# Third-party code is ignored by default: bigger deps (e.g. Assimp) get
+# fetched by the build system, not committed.
 *
 !.gitignore
 !.gitkeep
+!README.md
+
+# Vendored (committed) deps — small, header-only, pinned to an exact version.
+# Both the folder and its contents need un-ignoring, since `*` matches at every depth.
+!metal-cpp/
+!metal-cpp/**
+!metal-cpp-extensions/
+!metal-cpp-extensions/**
+
+# Re-ignore Finder junk inside vendored folders (the negations above un-ignore it)
+.DS_Store

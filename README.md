@@ -63,5 +63,5 @@ setup).
 ## Setup and running instructions:
 Please refer to each poject's own instructions:
 
-- Engine: [Running the editor](./engine/README.md)
+- Engine: [Running the ditor](./engine/README.md)
 
