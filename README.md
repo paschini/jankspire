@@ -40,28 +40,31 @@ engine and client are hand-built from here.
 
 ```
 jankspire/
-├── engine/               # C++ static lib — rendering, math, skeletal anim, ECS-ish core
-├── client/                # C++ executable, links engine
+├── engine/                # C++ static lib — rendering, math, skeletal anim, ECS-ish core
+├── editor/                # C++ executable, links engine — the engine's main tool
+├── client/                # C++ executable, links engine — the game
 ├── server/                # standalone .NET console app
 ├── protocol/              # shared packet format spec (docs, not shared code)
 │   └── packets.md
 ├── assets/
 │   └── models/
-├── third_party/           # Assimp etc.
-└── CMakeLists.txt         # root: add_subdirectory(engine), add_subdirectory(client)
+├── third_party/           # metal-cpp (vendored), Assimp etc.
+└── CMakeLists.txt         # root: adds engine/, editor/, client/ as subdirectories
 ```
 
 ## Status
 
-Early scaffolding — folder structure and coding standards are in place;
-no engine/client/server code has been written yet.
+Early scaffolding: the folder structure and coding standards are in place, and the
+editor is a hello world building through CMake. metal-cpp is vendored in
+`third_party/`; the first window is next.
 
 See [`CLAUDE.md`](CLAUDE.md) for the full coding standards and project
 context (naming conventions, error handling, memory ownership rules, build
 setup).
 
-## Setup and running instructions:
-Please refer to each poject's own instructions:
+## Setup and running instructions
 
-- Engine: [Running the ditor](./engine/README.md)
+Please refer to each project's own instructions:
+
+- Editor: [Building and running the editor](./editor/README.md)
 
