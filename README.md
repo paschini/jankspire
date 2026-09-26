@@ -25,6 +25,10 @@ engine and client are hand-built from here.
 - **Server**: C# console app hosts multiple clients over the local network.
   Each client sees the others' positions update in (near) real time. Tested
   locally with 2–4 client instances.
+- **Editor**: loads a scene from disk, shows it in the viewport, lets you
+  select objects and edit their properties (transform, mesh, etc.) in the
+  inspector, and saves it back. The client loads the same scene file, so the
+  editor is where the client's world gets built.
 
 ## Stack
 
@@ -33,6 +37,7 @@ engine and client are hand-built from here.
 | Graphics | Metal | Mac-only, and that's fine here. OpenGL is deprecated on macOS; Vulkan is too much boilerplate for this stage. |
 | Math | Apple's `simd` | Integrates directly with Metal buffers, no external math library needed. |
 | Model import | Assimp (FBX) | Hand-parsing FBX's binary format is miserable; Assimp does it once at load time. |
+| Editor UI | Dear ImGui (docking) | Immediate-mode UI and the industry standard for engine tools. The editor's panels are one line of code per field, not a widget framework. |
 | Networking | Raw sockets (`UdpClient` / BSD sockets) | Hand-designed plaintext protocol, no framework, no shared codegen — see [`protocol/packets.md`](protocol/packets.md). |
 | Server runtime | C# / .NET | Console app, no frameworks. |
 
@@ -48,15 +53,15 @@ jankspire/
 │   └── packets.md
 ├── assets/
 │   └── models/
-├── third_party/           # metal-cpp (vendored), Assimp etc.
+├── third_party/           # metal-cpp, Dear ImGui (vendored), Assimp etc.
 └── CMakeLists.txt         # root: adds engine/, editor/, client/ as subdirectories
 ```
 
 ## Status
 
 Early scaffolding: the folder structure and coding standards are in place, and the
-editor is a hello world building through CMake. metal-cpp is vendored in
-`third_party/`; the first window is next.
+editor opens a Metal window with a placeholder Unity-style layout (toolbar,
+inspector, viewport, status bar) drawn with Dear ImGui.
 
 See [`CLAUDE.md`](CLAUDE.md) for the full coding standards and project
 context (naming conventions, error handling, memory ownership rules, build

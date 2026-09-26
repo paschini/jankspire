@@ -4,13 +4,16 @@
 !.gitignore
 !.gitkeep
 !README.md
+!CMakeLists.txt
 
-# Vendored (committed) deps — small, header-only, pinned to an exact version.
+# Vendored (committed) deps — small, pinned to an exact version.
 # Both the folder and its contents need un-ignoring, since `*` matches at every depth.
 !metal-cpp/
 !metal-cpp/**
 !metal-cpp-extensions/
 !metal-cpp-extensions/**
+!imgui/
+!imgui/**
 
 # Re-ignore Finder junk inside vendored folders (the negations above un-ignore it)
 .DS_Store

@@ -17,7 +17,8 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -readability-magic-numbers,
   -readability-identifier-length,
-  -cppcoreguidelines-pro-type-static-cast-downcast
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -bugprone-signed-bitwise
 
 # Disabled, and why:
 #  bugprone-easily-swappable-parameters  flags any two same-typed params (x, y); mostly noise
@@ -27,6 +28,7 @@ Checks: >
 #  misc-non-private-member-variables-in-classes  plain data structs (Vertex etc.) have public fields
 #  readability-magic-numbers             graphics code is full of literal colors, sizes, matrices
 #  readability-identifier-length         x, y, i, dt are fine names
+#  bugprone-signed-bitwise               Dear ImGui flags are int enums by design; every `A | B` trips it
 #  cppcoreguidelines-pro-type-static-cast-downcast  never enabled above, but CLion
 #      Nova adds it from its own defaults; it wants dynamic_cast, which can't work on
 #      metal-cpp's NS::Object (a wrapper around Objective-C objects with no C++ RTTI)

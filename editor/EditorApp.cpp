@@ -1,5 +1,7 @@
 #include "EditorApp.h"
 
+#include "EditorTheme.h"
+
 void EditorApp::applicationWillFinishLaunching(NS::Notification* notification)
 {
   auto* app = static_cast<NS::Application*>(notification->object());
@@ -18,13 +20,20 @@ void EditorApp::applicationDidFinishLaunching(NS::Notification* notification)
   m_device = NS::TransferPtr(MTL::CreateSystemDefaultDevice());
 
   m_view = NS::TransferPtr(MTK::View::alloc()->init(Frame, m_device.get()));
-  m_view->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB);
-  m_view->setClearColor(MTL::ClearColor::Make(0.16, 0.16, 0.21, 1.0));
-
-  m_renderer = std::make_unique<Renderer>(m_device.get());
-  m_view->setDelegate(m_renderer.get());
+  // Plain (non-sRGB) format: ImGui's colors are already sRGB values, and an
+  // sRGB drawable would convert them a second time and wash them out.
+  // The scene will get its own sRGB render target once it renders into the viewport.
+  m_view->setColorPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
+  // The clear color is the backdrop the UI's islands float on
+  m_view->setClearColor(MTL::ClearColor::Make(theme::Backdrop.x, theme::Backdrop.y, theme::Backdrop.z, 1.0));
 
   m_window->setContentView(m_view.get());
+
+  // After setContentView: ImGui's macOS backend hooks into the view's window for input
+  m_ui = std::make_unique<EditorUi>(m_device.get(), m_view.get());
+  m_renderer = std::make_unique<Renderer>(m_device.get(), m_ui.get());
+  m_view->setDelegate(m_renderer.get());
+
   m_window->setTitle(NS::String::string("Jankspire Editor", NS::StringEncoding::UTF8StringEncoding));
   m_window->makeKeyAndOrderFront(nullptr);
 

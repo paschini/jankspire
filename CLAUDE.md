@@ -17,6 +17,11 @@ condensed version a session needs without re-briefing.
   first. Only add a new third-party dependency when the standard library
   genuinely can't do it, and call it out explicitly rather than quietly
   vendoring something in.
+- **Editor-first, driven by real scenes.** Game content is built in the editor,
+  not in code. (Fiddling with Bevy showed how much the lack of an editor
+  gets in the way.) Editor features come from what an actual scene needs:
+  "the first scene is a character on a floor" means "the editor must be able
+  to add a plane". The client then starts as "load the scene the editor saved."
 
 ## Milestone 1 scope
 
@@ -25,6 +30,10 @@ condensed version a session needs without re-briefing.
 - **Server**: C# console app hosts multiple clients over the local network.
   Each client sees the others' positions update in (near) real time. Tested
   locally with 2–4 client instances.
+- **Editor**: loads a scene from disk, shows it in the viewport, lets you
+  select objects and edit their properties (transform, mesh, etc.) in the
+  inspector, and saves it back. The client loads the same scene file, so the
+  editor is where the client's world gets built.
 
 ## Repo structure
 
@@ -38,7 +47,7 @@ jankspire/
 │   └── packets.md
 ├── assets/
 │   └── models/
-├── third_party/          # metal-cpp + metal-cpp-extensions (vendored, committed); Assimp etc. (fetched, ignored)
+├── third_party/          # metal-cpp, metal-cpp-extensions, Dear ImGui (vendored, committed; targets in its CMakeLists.txt); Assimp etc. (fetched, ignored)
 └── CMakeLists.txt        # root: add_subdirectory() for engine/, editor/, client/
 ```
 
@@ -53,6 +62,9 @@ one, so engine features should be reachable through it.
 - **Math**: Apple's `simd` framework — matrices, quaternions, dot/cross
   products. No external math library; integrates directly with Metal buffers.
 - **Model import**: Assimp, loading FBX.
+- **Editor UI**: Dear ImGui (docking branch) with its Metal/macOS backends,
+  themed after JetBrains' "Islands" look (`editor/EditorTheme.*`). Editor
+  tooling only; in-game UI (HUD, chat, nameplates) gets hand-built in Metal.
 - **Networking**: raw sockets (`UdpClient` / BSD sockets), no networking
   framework, no shared codegen between client and server. Hand-designed
   plaintext packet format, documented in `protocol/packets.md` as it's built —
