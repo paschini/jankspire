@@ -59,3 +59,9 @@ no engine/client/server code has been written yet.
 See [`CLAUDE.md`](CLAUDE.md) for the full coding standards and project
 context (naming conventions, error handling, memory ownership rules, build
 setup).
+
+## Setup and running instructions:
+Please refer to each poject's own instructions:
+
+- Engine: [Running the editor](./engine/README.md)
+
